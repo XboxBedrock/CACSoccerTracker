@@ -145,3 +145,5 @@ dmypy.json
 .micropy/
 !micropy.json
 !src/lib
+notes.ipynb
+noise_filter.py
