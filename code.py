@@ -1,12 +1,11 @@
+import math
 import machine
 import utime
 import mpu9250
-import lp_filter
+import noise_filter
 
 from ak8963 import AK8963
 from mpu6500 import MPU6500
-from vector import Vector3
-
 
 SDA = machine.Pin(0)
 SCL = machine.Pin(1)
@@ -27,12 +26,14 @@ magno = AK8963(
 )
 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
-accel = 0
-while True:
-    #print(prev_val)
-    #prev_val = lp_filter.filter_accl(Vector3(sensor.acceleration), prev_val)
-    prev_accel = accel
-    accel = sensor.acceleration[0]
-    print((temp := lp_filter.filter_accl(accel, prev_accel)), accel)
-    accel = temp
-    utime.sleep(0.5)
+# val = 0
+# while True:
+#     prev_val = val
+#     val = sensor.magnetic[0]
+#     # print(noise_filter.filter_gyro(val), val)
+#     print((temp := noise_filter.filter_mag(val, prev_val)), val)
+#     val = temp
+#     utime.sleep(0.5)
+
+
+roll_accel = math.atan2(sensor.acceleration[])

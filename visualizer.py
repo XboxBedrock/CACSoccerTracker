@@ -28,7 +28,9 @@ vs_filtered = []
 with open('data.txt', 'r') as f:
     t = 0
     for line in f.readlines():
-        nums = tuple(map(float, line[1:-2].split()))
+        # print(line[:-1], end = ' ')
+        nums = tuple(map(float, line.split()))
+        # print(nums)
         ts.append(t)
         vs_filtered.append(nums[0])
         vs.append(nums[1])
