@@ -1,10 +1,27 @@
 {
     "python.linting.enabled": true,
     "python.jediEnabled": false,
-
-    "python.linting.pylintEnabled": false,
+    "python.linting.pylintEnabled": true,
     "python.linting.mypyEnabled": false,
     "python.languageServer": "Pylance",
     "python.linting.prospectorEnabled": false,
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": true,
+    "python.autoComplete.extraPaths": [
+        ".micropy/micropy-cli/frozen",
+        ".micropy/BradenM-micropy-stubs-4f5a52a/frozen",
+        ".micropy/micropy-cli/stubs",
+        ".micropy/CACSoccerTracker"
+    ],
+    "python.autoComplete.typeshedPaths": [
+        ".micropy/micropy-cli/frozen",
+        ".micropy/BradenM-micropy-stubs-4f5a52a/frozen",
+        ".micropy/micropy-cli/stubs",
+        ".micropy/CACSoccerTracker"
+    ],
+    "python.analysis.typeshedPaths": [
+        ".micropy/micropy-cli/frozen",
+        ".micropy/BradenM-micropy-stubs-4f5a52a/frozen",
+        ".micropy/micropy-cli/stubs",
+        ".micropy/CACSoccerTracker"
+    ]
 }
