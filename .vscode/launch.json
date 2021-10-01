@@ -5,10 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "CodeTogether",
+            "name": "Python: Current File",
+            "type": "python",
             "request": "launch",
-            "name": "Creation of new remote launch configurations is not supported",
-            "id": ""
+            "program": "${file}",
+            "console": "integratedTerminal"
         }
     ]
 }
