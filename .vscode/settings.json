@@ -1,21 +1,10 @@
 {
     "python.linting.enabled": true,
     "python.jediEnabled": false,
-
-    // Loaded Stubs:  rp2-micropython-1.15.0 
-    "python.autoComplete.extraPaths": [".micropy\\micropy-cli\\frozen", ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen", ".micropy\\micropy-cli\\stubs", ".micropy\\SoccerTracker"],
-    "python.autoComplete.typeshedPaths":  [".micropy\\micropy-cli\\frozen", ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen", ".micropy\\micropy-cli\\stubs", ".micropy\\SoccerTracker"],
-    "python.analysis.typeshedPaths":  [".micropy\\micropy-cli\\frozen", ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen", ".micropy\\micropy-cli\\stubs", ".micropy\\SoccerTracker"],
-
     "python.linting.pylintEnabled": false,
-    "python.analysis.extraPaths": [
-        ".micropy\\micropy-cli\\frozen",
-        ".micropy\\BradenM-micropy-stubs-4f5a52a\\frozen",
-        ".micropy\\micropy-cli\\stubs",
-        ".micropy\\SoccerTracker"
-    ],
-    "python.linting.mypyEnabled": false,
+    "python.linting.mypyEnabled": true,
     "python.languageServer": "Pylance",
     "python.linting.prospectorEnabled": false,
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": false,
+    "python.analysis.stubPath": ".micropy/micropy-cli/frozen"
 }
