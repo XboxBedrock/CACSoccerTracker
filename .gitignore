@@ -4,7 +4,7 @@
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
-.vscode
+.vscode/
 __pycache__/
 *.py[cod]
 *$py.class
