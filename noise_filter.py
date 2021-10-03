@@ -1,8 +1,3 @@
-import math
-
-from vector import Vector3
-
-
 '''  complementary + low-pass
 if (Value < CompareValue - NP | Value > CompareValue + NP)
 {
@@ -38,17 +33,12 @@ GAIN_ACCL = 0.025  # gain
 
 def filter_accel(val, prev_val):
     if (val < (prev_val - NP_ACCL)) or (val > (prev_val + NP_ACCL)):
-        res = val
+        return val
     else:
         if (val < (prev_val - NPS_ACCL)) or (val > (prev_val + NPS_ACCL)):
-            res = (val + prev_val)/2
+            return (val + prev_val)/2
         else:
-            res = (1 - GAIN_ACCL) * prev_val + GAIN_ACCL * val
-
-    if abs(res) > 0.06:
-        return res
-    else:
-        return 0
+            return (1 - GAIN_ACCL) * prev_val + GAIN_ACCL * val
 
 # variance = 0.01
 # k = 3
@@ -58,32 +48,22 @@ def filter_accel(val, prev_val):
 #     return val-variance*math.tanh(k*diff/(2*variance))
 
 
-NP_MAG = 3
+NP_MAG = 3.5
 GAIN_MAG = 0.025  # gain
+
 
 def filter_mag(val, prev_val):
     if (val < (prev_val - NP_MAG)) or (val > (prev_val + NP_MAG)):
-        res = val
+        return val
     else:
-        res = (1 - GAIN_MAG) * prev_val + GAIN_MAG * val
-
-    if abs(res) > 0.06:
-        return res
-    else:
-        return 0
+        return (1 - GAIN_MAG) * prev_val + GAIN_MAG * val
 
 
 NP_GYRO = 0.267
-GAIN_GYRO = 0  # gain
 
 
 def filter_gyro(val):
-    if (val < -NP_GYRO) or (val > NP_GYRO):
-        res = val
-    else:
-        res = GAIN_GYRO * val
-
-    if abs(res) > 0.06:
-        return res
+    if abs(val) < NP_GYRO:
+        return val
     else:
         return 0
