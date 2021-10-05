@@ -1,7 +1,7 @@
 {
     "python.linting.enabled": true,
     "python.jediEnabled": false,
-    "python.linting.pylintEnabled": false,
+    "python.linting.pylintEnabled": true,
     "python.linting.mypyEnabled": true,
     "python.languageServer": "Pylance",
     "python.linting.prospectorEnabled": false,

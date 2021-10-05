@@ -103,7 +103,7 @@ def mul(x, y):
 class MadgwickAHRS:
     sample_period = 1/256
     quaternion = Quaternion(1, 0, 0, 0)
-    beta = 1
+    beta = 0.082
 
     def __init__(self, sample_period_=None, quaternion_=None, beta_=None):
         """
@@ -171,7 +171,7 @@ class MadgwickAHRS:
         step = mul(step, 1/norm(step))  # normalize step magnitude
 
         # Compute rate of change of quaternion
-        dq = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * transpose(step)
+        dq = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - Quaternion(self.beta * transpose(step))
 
         # Integrate to yield quaternion
         q += dq * self.sample_period
@@ -188,7 +188,7 @@ class MadgwickAHRS:
         q = self.quaternion
 
         # Normalize accelerometer measurement
-        if norm(accelerometer) is 0:
+        if norm(accelerometer) == 0:
             # TODO: find alternative to CPython warnings module
             # warnings.warn("accelerometer is zero")
             return
@@ -205,7 +205,7 @@ class MadgwickAHRS:
             [2*q[1], 2*q[0], 2*q[3], 2*q[2]],
             [0, -4*q[1], -4*q[2], 0]
         ]
-        step = mul(transpose(J, f))
+        step = mul(transpose(J), f)
         step = mul(step, 1/norm(step))  # normalize step magnitude
 
         # Compute rate of change of quaternion

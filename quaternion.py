@@ -46,7 +46,7 @@ class Quaternion:
         """
         if self[0] == 1 and self[1] == 0 and self[2] == 0 and self[3] == 0:
             return 0, 1, 0, 0
-        rad = math.arccos(self[0]) * 2
+        rad = math.acos(self[0]) * 2
         imaginary_factor = math.sin(rad / 2)
         if abs(imaginary_factor) < 1e-8:
             return 0, 1, 0, 0
