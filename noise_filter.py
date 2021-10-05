@@ -24,6 +24,14 @@ x ->  variance as d -> -infty,
 where d = val-prev_val
 
 filter_val = measured_val + f(measured_val-prev_filter_val, variance)
+
+
+variance = 0.01
+k = 3
+
+def filter_accl(val, prev_val):
+    diff = val-prev_val
+    return val-variance*math.tanh(k*diff/(2*variance))
 """
 
 NP_ACCL = 0.119
@@ -40,15 +48,7 @@ def filter_accel(val, prev_val):
         else:
             return (1 - GAIN_ACCL) * prev_val + GAIN_ACCL * val
 
-# variance = 0.01
-# k = 3
-
-# def filter_accl(val, prev_val):
-#     diff = val-prev_val
-#     return val-variance*math.tanh(k*diff/(2*variance))
-
-
-NP_MAG = 3.5
+NP_MAG = 3.5  # thesis paper says 3, I noticed 3.5 while stationary though
 GAIN_MAG = 0.025  # gain
 
 
