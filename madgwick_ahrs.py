@@ -132,7 +132,7 @@ class MadgwickAHRS:
         q = self.quaternion
 
         # Normalize magnetometer measurement
-        if norm(magnetometer) is 0:
+        if norm(magnetometer) == 0:
             # TODO: find alternative to CPython warnings module
             # warnings.warn("magnetometer is zero")
             self.update_6DOF(gyroscope, accelerometer)
@@ -140,7 +140,7 @@ class MadgwickAHRS:
         magnetometer = mul(magnetometer, 1/norm(magnetometer))
 
         # Normalize accelerometer measurement
-        if norm(accelerometer) is 0:
+        if norm(accelerometer) == 0:
             # TODO: find alternative to CPython warnings module
             # warnings.warn("accelerometer is zero")
             return
