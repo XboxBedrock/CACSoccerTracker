@@ -103,7 +103,7 @@ def mul(x, y):
 class MadgwickAHRS:
     sample_period = 1/256
     quaternion = Quaternion(1, 0, 0, 0)
-    beta = 0.082
+    beta = 0.041  # TODO: Figure out what this does
 
     def __init__(self, sample_period_=None, quaternion_=None, beta_=None):
         """

@@ -1,6 +1,7 @@
 import math
 import machine
 import utime
+from madgwick_ahrs import MadgwickAHRS
 import mpu9250
 import noise_filter
 
@@ -26,11 +27,12 @@ magno = AK8963(
 )
 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
-# val = 0
-# while True:
-#     prev_val = val
-#     val = sensor.magnetic[0]
-#     # print(noise_filter.filter_gyro(val), val)
-#     print((temp := noise_filter.filter_mag(val, prev_val)), val)
-#     val = temp
-#     utime.sleep(0.5)
+val = 0
+madgwick = MadgwickAHRS()
+while True:
+    prev_val = val
+    val = sensor.magnetic[0]
+    # print(noise_filter.filter_gyro(val), val)
+    print((temp := noise_filter.filter_mag(val, prev_val)), val)
+    val = temp
+    utime.sleep(0.5)
