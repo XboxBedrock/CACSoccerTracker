@@ -1,5 +1,4 @@
 import math
-import numbers
 
 
 class Quaternion:
@@ -11,12 +10,12 @@ class Quaternion:
         """
         Initializes a Quaternion object
         :param w_or_q: A scalar representing the real part of the quaternion, another Quaternion object or a
-                    four-element array containing the quaternion values
+                    four-element list/tuple containing the quaternion values
         :param x: The first imaginary part if w_or_q is a scalar
         :param y: The second imaginary part if w_or_q is a scalar
         :param z: The third imaginary part if w_or_q is a scalar
         """
-        if isinstance(w_or_q, numbers.Number) and isinstance(x, numbers.Number) and isinstance(y, numbers.Number) and isinstance(z, numbers.Number):
+        if isinstance(w_or_q, (int, float)) and isinstance(x, (int, float)) and isinstance(y, (int, float)) and isinstance(z, (int, float)):
             q = (w_or_q, x, y, z)
         elif isinstance(w_or_q, Quaternion):
             q = w_or_q.q
@@ -100,15 +99,18 @@ class Quaternion:
                 self._q[2]*other._q[1] + self._q[3]*other._q[0]
 
             return Quaternion(w, x, y, z)
-        elif isinstance(other, numbers.Number):
+        elif isinstance(other, (int, float)):
             return Quaternion(self[0]*other, self[1]*other, self[2]*other, self[3]*other)
         else:
             raise ValueError(
                 'Quaternions must be multiplied with other quaternions or a number')
 
+    def __rmul__(self, other):
+        return self * other
+
     def __add__(self, other):
         """
-        add two quaternions element-wise or add a scalar to each element of the quaternion
+        add two quaternions element-wise
         :param other: a Quaternion object
         :return: a Quaternion object
         """
@@ -118,6 +120,31 @@ class Quaternion:
                     "Quaternions must be added to other quaternions or a 4-element array")
 
         return Quaternion(self[0]+other[0], self[1]+other[1], self[2]+other[2], self[3]+other[3])
+
+    def __radd__(self, other):
+        return self + other
+
+    def __neg__(self):
+        return -1*self
+
+    def __sub__(self, other):
+        """
+        subtract two quaternions element-wise
+        :param other: a Quaternion object
+        :return: a Quaternion object
+        """
+        if not isinstance(other, Quaternion):
+            if len(other) != 4:
+                raise TypeError(
+                    "Quaternions must be added to other quaternions or a 4-element array")
+
+        return Quaternion(self[0]-other[0], self[1]-other[1], self[2]-other[2], self[3]-other[3])
+
+    def __rsub__(self, other):
+        return (-self) + other
+
+    def __truediv__(self, other):
+        return self * (1/other)
 
     # Implementing other interfaces to ease working with the class
 
@@ -131,3 +158,6 @@ class Quaternion:
 
     def __getitem__(self, item):
         return self._q[item]
+
+    def __iter__(self):
+        yield from self._q
