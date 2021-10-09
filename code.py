@@ -1,15 +1,18 @@
 import math
 import machine
+import ustruct
 import utime
-from madgwick_ahrs import MadgwickAHRS
 import mpu9250
-import noise_filter
 
+from madgwick_ahrs import MadgwickAHRS
 from ak8963 import AK8963
 from mpu6500 import MPU6500
 
+SAMPLE_FREQ = 5
+
 SDA = machine.Pin(0)
 SCL = machine.Pin(1)
+
 
 i2c = machine.I2C(0, scl=SCL, sda=SDA)
 print(i2c.scan())
@@ -29,10 +32,9 @@ sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
 val = 0
 madgwick = MadgwickAHRS()
-while True:
-    prev_val = val
-    val = sensor.magnetic[0]
-    # print(noise_filter.filter_gyro(val), val)
-    print((temp := noise_filter.filter_mag(val, prev_val)), val)
-    val = temp
-    utime.sleep(0.5)
+
+with open(f'{int(utime.time())}.bin', 'wb') as logfile:
+    while True:
+        for val in sensor.acceleration+sensor.gyro+sensor.magnetic:
+            logfile.write(ustruct.pack('e', val))
+        utime.sleep(1/SAMPLE_FREQ)

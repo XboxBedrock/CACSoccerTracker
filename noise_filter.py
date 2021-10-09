@@ -1,4 +1,4 @@
-'''  complementary + low-pass
+"""  complementary + low-pass
 if (Value < CompareValue - NP | Value > CompareValue + NP)
 {
     FilteredValue = Value;
@@ -14,7 +14,7 @@ else
             FilteredValue = (1 - NPL)*PreviousCorrect + NPL*Value;
         }
 }
-'''
+"""
 
 """  Prajwal's
 f(d, variance) => x s.t.
@@ -34,6 +34,7 @@ def filter_accl(val, prev_val):
     return val-variance*math.tanh(k*diff/(2*variance))
 """
 
+
 NP_ACCL = 0.119
 NPS_ACCL = 0.0898
 GAIN_ACCL = 0.025
@@ -46,6 +47,7 @@ def filter_accel(val, prev_val):
         return (val + prev_val)/2
     else:
         return (1 - GAIN_ACCL) * prev_val + GAIN_ACCL * val
+
 
 NP_MAG = 3.5  # thesis paper says 3, I noticed 3.5 while stationary though
 GAIN_MAG = 0.025
