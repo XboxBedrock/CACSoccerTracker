@@ -24,7 +24,7 @@ def norm(x):
     :param x: matrix (as an iterable of iterables)
     :return: float
     """
-    if not hasattr(x[0], '__iter__'):
+    if not isinstance(x[0], (tuple, list)):
         x = [x]
 
     res = 0
@@ -60,10 +60,11 @@ def mul(x, y):
         If `x` is an `a x b` matrix and `y` is a `b x c` matrix: an `a x c` matrix
         If `x` is an `a x b` matrix and `y` is a number (or vice versa): an `a x b` matrix
         If `x` is a number and `y` is a number: a number"""
-    if hasattr(x, '__iter__') and hasattr(y, '__iter__'):  # matrix x matrix
-        if not hasattr(x[0], '__iter__'):
+
+    if isinstance(x, (tuple, list)) and isinstance(y, (tuple, list)):  # matrix x matrix
+        if not isinstance(x[0], (tuple, list)):
             x = [x]
-        if not hasattr(y[0], '__iter__'):
+        if not isinstance(y[0], (tuple, list)):
             y = [y]
         a, b = len(x), len(x[0])
         _b, c = len(y), len(y[0])
@@ -79,10 +80,10 @@ def mul(x, y):
 
         return res
 
-    if not hasattr(x, '__iter__') and hasattr(y, '__iter__'):
+    if not isinstance(x, (tuple, list)) and isinstance(y, (tuple, list)):
         x, y = y, x
-    if hasattr(x, '__iter__') and not hasattr(y, '__iter__'):  # matrix x num
-        if not hasattr(x[0], '__iter__'):
+    if isinstance(x, (tuple, list)) and not isinstance(y, (tuple, list)):  # matrix x num
+        if not isinstance(x[0], (tuple, list)):
             x = [x]
             vec = True
         else:
@@ -101,23 +102,16 @@ def mul(x, y):
 
 
 class MadgwickAHRS:
-    sample_period = 1/256
-    quaternion = Quaternion(1, 0, 0, 0)
-    beta = 0.041  # TODO: Figure out what this does
-
-    def __init__(self, sample_period_=None, quaternion_=None, beta_=None):
+    def __init__(self, sample_period_=1/256, quaternion_=Quaternion(1, 0, 0, 0), beta_=0.041):
         """
         Initialize the class with the given parameters.
-        :param sampleperiod: The sample period
+        :param sampleperiod: The sample period in seconds
         :param quaternion: Initial quaternion
         :param beta: Algorithm gain beta
         """
-        if sample_period_ is not None:
-            self.sample_period = sample_period_
-        if quaternion_ is not None:
-            self.quaternion = quaternion_
-        if beta_ is not None:
-            self.beta = beta_
+        self.sample_period = sample_period_
+        self.quaternion = quaternion_
+        self.beta = beta_
 
     def update_9DOF(self, gyroscope, accelerometer, magnetometer):
         """
@@ -152,12 +146,12 @@ class MadgwickAHRS:
 
         # Gradient descent algorithm corrective step
         f = [
-            2*(q[1]*q[3] - q[0]*q[2]) - accelerometer[0],
-            2*(q[0]*q[1] + q[2]*q[3]) - accelerometer[1],
-            2*(0.5 - q[1]**2 - q[2]**2) - accelerometer[2],
-            2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]) - magnetometer[0],
-            2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]) - magnetometer[1],
-            2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2) - magnetometer[2]
+            [2*(q[1]*q[3] - q[0]*q[2]) - accelerometer[0]],
+            [2*(q[0]*q[1] + q[2]*q[3]) - accelerometer[1]],
+            [2*(0.5 - q[1]**2 - q[2]**2) - accelerometer[2]],
+            [2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]) - magnetometer[0]],
+            [2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]) - magnetometer[1]],
+            [2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2) - magnetometer[2]]
         ]
         J = [
             [-2*q[2],                  2*q[3],                  -2*q[0],                  2*q[1]                  ],
@@ -167,15 +161,17 @@ class MadgwickAHRS:
             [-2*b[1]*q[3]+2*b[3]*q[1], 2*b[1]*q[2]+2*b[3]*q[0], 2*b[1]*q[1]+2*b[3]*q[3],  -2*b[1]*q[0]+2*b[3]*q[2]],
             [2*b[1]*q[2],              2*b[1]*q[3]-4*b[3]*q[1], 2*b[1]*q[0]-4*b[3]*q[2],  2*b[1]*q[1]             ]
         ]
+        # NOTE: step is a 4 x 1 matrix
         step = mul(transpose(J), f)
         step = mul(step, 1/norm(step))  # normalize step magnitude
 
         # Compute rate of change of quaternion
-        dq = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - Quaternion(self.beta * transpose(step))
+        dq = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * \
+            0.5 - Quaternion(mul(self.beta, transpose(step))[0])
 
         # Integrate to yield quaternion
         q += dq * self.sample_period
-        self.quaternion = Quaternion(q / norm(q))  # normalize quaternion
+        self.quaternion = q/norm(q)  # normalize quaternion
 
     def update_6DOF(self, gyroscope, accelerometer):
         """
@@ -209,7 +205,8 @@ class MadgwickAHRS:
         step = mul(step, 1/norm(step))  # normalize step magnitude
 
         # Compute rate of change of quaternion
-        dq = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * transpose(step)
+        dq = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * \
+            0.5 - Quaternion(mul(self.beta, transpose(step))[0])
 
         # Integrate to yield quaternion
         q += dq * self.sample_period
