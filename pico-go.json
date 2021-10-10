@@ -4,7 +4,7 @@
     "safe_boot_on_upload": false,
     "statusbar_buttons": null,
     "py_ignore": [
-        "pymakr.conf",
+        "pico-go.json",
         ".vscode/",
         ".gitignore",
         ".git",
