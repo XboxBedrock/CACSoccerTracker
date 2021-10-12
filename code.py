@@ -30,13 +30,6 @@ magno = AK8963(
 )
 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
-<<<<<<< HEAD
-madgwick = MadgwickAHRS(1/SAMPLE_FREQ)
-while True:
-    madgwick.update_9DOF(sensor.gyro, sensor.acceleration, sensor.magnetic)
-    utime.sleep(1/SAMPLE_FREQ)
-    print(madgwick.quaternion.to_euler_angles())
-=======
 val = 0
 madgwick = MadgwickAHRS()
 
@@ -45,4 +38,3 @@ with open(f'{int(utime.time())}.bin', 'wb') as logfile:
         for val in sensor.acceleration+sensor.gyro+sensor.magnetic:
             logfile.write(ustruct.pack('e', val))
         utime.sleep(1/SAMPLE_FREQ)
->>>>>>> ba1cfb580efa4e76d9e13a8cbc4f3d3b08564c33
