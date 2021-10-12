@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html>
+
+<button onclick="test()"> connect <button >
+<button id="askdata" type="button" > red </button >
+<script >
+var port;
+function sendByte(b){  
+     if (port && port.writable) {   
+          const writer = port.writable.getWriter();   
+          writer.write(b);    
+          writer.releaseLock();  }}
+
+if (document.getElementById ('askdata')) {
+document.getElementById ('askdata').addEventListener("click", function() {
+  sendByte(new Uint8Array([103, 101, 116, 100, 97 , 116, 97 ])); // ascii 'b'
+});}
+
+
+const test = async function () {    port = await navigator.serial.requestPort({});    await port.open({ baudRate: 115200 });}
+
+
+</script>
+
+</html >
