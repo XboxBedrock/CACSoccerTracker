@@ -57,6 +57,8 @@ while True:
             ch = sys.stdin.read(1)        
             if (ch == 'b'): 
                  STATUS_LED.value(1)
+            if (ch == 'calibmag'): 
+                pass # add calib stuff here for mangometer
 
     STATUS_LED.value(1)
 
