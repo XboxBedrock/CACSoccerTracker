@@ -1,11 +1,12 @@
+import sys
+import select
 import machine
 import ustruct
 import utime
 import mpu9250
-import sys
+
 from ak8963 import AK8963
 from mpu6500 import MPU6500
-import select
 
 # ---------- OPTIONS ---------- #
 SAMPLE_FREQ = 5
@@ -17,8 +18,8 @@ SCL = machine.Pin(1)
 START_STOP_BUTTON = machine.Pin(13)
 CALIB_BUTTON = machine.Pin(14)
 STATUS_LED = machine.Pin(15, machine.Pin.OUT)
-STATUS_LED.value(1)
-utime.sleep(1)
+STATUS_LED.value(1)  # test
+utime.sleep(1)  # test
 STATUS_LED.value(0)
 # ----------------------------- #
 
@@ -44,7 +45,7 @@ _ = mpu9250.MPU9250(i2c)  # opens bypass to access AK8963
 mpu6500 = MPU6500(i2c)
 
 
-if  not idiot:
+if not idiot:
     magno = AK8963(i2c, offset=PRAJWAL_MAGNO_OFFSET, scale=PRAJWAL_MAGNO_SCALE)
 if idiot:
     magno = AK8963(i2c, offset=SUSHRUT_MAGNO_OFFSET, scale=SUSHRUT_MAGNO_SCALE)
@@ -53,11 +54,11 @@ sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 print(START_STOP_BUTTON.value())
 while True:
     while START_STOP_BUTTON.value() != 1:
-         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:        
-            ch = sys.stdin.read(1)        
-            if (ch == 'b'): 
-                 STATUS_LED.value(1)
-            if (ch == 'calibmag'): 
+        while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            ch = sys.stdin.readline()
+            if ch == 'b':
+                STATUS_LED.value(1)
+            if ch == 'calibmag':
                 pass # add calib stuff here for mangometer
 
     STATUS_LED.value(1)
