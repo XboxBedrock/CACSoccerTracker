@@ -14,7 +14,7 @@ function sendByte(b){
 
 if (document.getElementById ('askdata')) {
 document.getElementById ('askdata').addEventListener("click", function() {
-  sendByte(new Uint8Array([103, 101, 116, 100, 97 , 116, 97 ])); // ascii 'b'
+  sendByte(new Uint8Array([98 ])); // ascii 'b'
 });}
 
 

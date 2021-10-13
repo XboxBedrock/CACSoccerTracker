@@ -55,7 +55,7 @@ while True:
     while START_STOP_BUTTON.value() != 1:
          while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:        
             ch = sys.stdin.read(1)        
-            if (ch == 'getdata'): 
+            if (ch == 'b'): 
                  STATUS_LED.value(1)
 
     STATUS_LED.value(1)
