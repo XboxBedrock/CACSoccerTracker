@@ -1,3 +1,4 @@
+import os
 import sys
 import select
 import machine
@@ -27,7 +28,7 @@ PRAJWAL_MAGNO_OFFSET = (29.04609, 34.06641, -52.03125)
 SUSHRUT_MAGNO_OFFSET = (3.153517, 26.01416, -29.99121)
 PRAJWAL_MAGNO_SCALE = (0.9980365, 1.032012, 0.9717683)
 SUSHRUT_MAGNO_SCALE = (0.9808451, 1.061359, 0.9631287)
-idiot = True #prajwal should change to false
+idiot = True  # Prajwal should change to false
 
 if PRAJWAL:
     MAGNO_OFFSET = PRAJWAL_MAGNO_OFFSET
@@ -44,22 +45,29 @@ _ = mpu9250.MPU9250(i2c)  # opens bypass to access AK8963
 
 mpu6500 = MPU6500(i2c)
 
-
 if not idiot:
     magno = AK8963(i2c, offset=PRAJWAL_MAGNO_OFFSET, scale=PRAJWAL_MAGNO_SCALE)
 if idiot:
     magno = AK8963(i2c, offset=SUSHRUT_MAGNO_OFFSET, scale=SUSHRUT_MAGNO_SCALE)
 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
-print(START_STOP_BUTTON.value())
+print(START_STOP_BUTTON.value())  # DEBUG
 while True:
+    # not logging, checking if connected to app
     while START_STOP_BUTTON.value() != 1:
+        # NOTE: inefficient, consider porting to select.poll()
         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            ch = sys.stdin.readline()
-            if ch == 'b':
+            msg = sys.stdin.readline()
+            if msg == 'b':  # DEBUG
                 STATUS_LED.value(1)
-            if ch == 'calibmag':
-                pass # add calib stuff here for mangometer
+            elif msg == 'calibmag':
+                sys.stdout.write("start")
+                magno.calibrate()
+                sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
+                sys.stdout.write("done")
+            elif msg == 'issetup':
+                is_setup = "pref.json" in os.listdir()
+                sys.stdout.write("true" * int(is_setup) + "false" * int(not is_setup))
 
     STATUS_LED.value(1)
 
@@ -76,4 +84,5 @@ while True:
                 logfile.write(ustruct.pack('f', val))
             utime.sleep(1/SAMPLE_FREQ)
 
-    utime.sleep(0.5)
+    # NOTE: Consider changing hang time
+    utime.sleep(0.5)  # so that one button press is not counted as multiple
