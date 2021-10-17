@@ -3,18 +3,23 @@
 <html>
 <button onclick="test()"> connect <button >
 <button id="askdata" type="button" > red </button >
-<script >
+<script>
+
 var port;
-function sendByte(b){
+
+function sendBytes(b){
   if (port && port.writable) {
     const writer = port.writable.getWriter();
     writer.write(b);
-    writer.releaseLock();  }}
+    writer.releaseLock();
+  }
+}
 
 if (document.getElementById ('askdata')) {
-document.getElementById ('askdata').addEventListener("click", function() {
-  sendByte(new Uint8Array([98])); // ascii 'b'
-});}
+  document.getElementById ('askdata').addEventListener("click", function() {
+    sendBytes(new Uint8Array([98, 10])); // ascii 'b\n'
+  });
+}
 
 
 const test = async function () {
@@ -25,4 +30,4 @@ const test = async function () {
 
 </script>
 
-</html >
+</html>

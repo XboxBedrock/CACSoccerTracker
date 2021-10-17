@@ -57,7 +57,7 @@ while True:
     while START_STOP_BUTTON.value() != 1:
         # NOTE: inefficient, consider porting to select.poll()
         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            msg = sys.stdin.readline()
+            msg = sys.stdin.readline().rstrip('\n')
             if msg == 'b':  # DEBUG
                 STATUS_LED.value(1)
             elif msg == 'calibmag':
