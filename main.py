@@ -53,13 +53,16 @@ sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
 print(START_STOP_BUTTON.value())  # DEBUG
 while True:
-    # not logging, checking if connected to app
+    # not logging, checking if connected to appn
     while START_STOP_BUTTON.value() != 1:
         # NOTE: inefficient, consider porting to select.poll()
         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             msg = sys.stdin.readline().rstrip('\n')
-            if msg == 'b':  # DEBUG
+            if msg == 'flash':  # DEBUG
                 STATUS_LED.value(1)
+                utime.sleep(0.5)
+                STATUS_LED.value(0)
+                sys.stdout.write("done")
             elif msg == 'calibmag':
                 sys.stdout.write("start")
                 magno.calibrate()
@@ -68,6 +71,33 @@ while True:
             elif msg == 'issetup':
                 is_setup = "pref.json" in os.listdir()
                 sys.stdout.write("true" * int(is_setup) + "false" * int(not is_setup))
+            elif msg == 'sendfiles':
+                STATUS_LED.value(1)
+                utime.sleep(0.5)
+                STATUS_LED.value(0)
+                #sys.stdout.write('start')
+                for fname in os.listdir():
+                    if fname.endswith('.bin'):
+                        # try:
+                        #     with open(fname, 'r') as f:
+                        #         data = f.read()
+                        #         if data:
+                        #             sys.stdout.write(fname[:-4])  # session timestamp
+                        #             sys.stdout.write(data)    # session data
+                        # except Exception as err:
+                        #     try:
+                        #         sys.stdout.write(data)
+                        #         sys.stdout.write(fname)
+                        #         sys.stdout.write(err)
+                        #     except NameError:
+                        #         print("'data' was not defined")
+                        with open(fname, 'r') as f:
+                            data = f.read()
+                            if data:
+                                sys.stdout.write(fname[:-4])  # session timestamp
+                                sys.stdout.write(len(data))   # number of bytes in data
+                                sys.stdout.write(data)        # session data
+                sys.stdout.write('done')
 
     STATUS_LED.value(1)
 
@@ -80,8 +110,7 @@ while True:
 
     with open(f'{int(utime.time())}.bin', 'wb') as logfile:
         while START_STOP_BUTTON.value() != 1:
-            for val in sensor.acceleration+sensor.gyro+sensor.magnetic:
-                logfile.write(ustruct.pack('f', val))
+            logfile.write(ustruct.pack('f'*9, sensor.acceleration+sensor.gyro+sensor.magnetic))
             utime.sleep(1/SAMPLE_FREQ)
 
     # NOTE: Consider changing hang time
