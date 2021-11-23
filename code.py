@@ -16,7 +16,9 @@ SDA = machine.Pin(0)
 SCL = machine.Pin(1)
 START_STOP_BUTTON = machine.Pin(13)
 CALIB_BUTTON = machine.Pin(14)
+# NOTE: Pins are input by default, output pins (e.g. LEDs) need to be specified.
 STATUS_LED = machine.Pin(15, machine.Pin.OUT)
+# NOTE: All output LEDS should be manually set to 0 immediately.
 STATUS_LED.value(0)
 # ----------------------------- #
 
@@ -60,7 +62,9 @@ while True:
 
     with open(f'{int(utime.time())}.bin', 'wb') as logfile:
         while START_STOP_BUTTON.value() != 1:
-            for val in sensor.acceleration+sensor.gyro+sensor.magnetic:
+            # NOTE: do not change order of sensor values below
+            # TODO: normalize accel values and check gyro values
+            for val in sensor.gyro+sensor.acceleration+(sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]):
                 logfile.write(ustruct.pack('f', val))
             utime.sleep(1/SAMPLE_FREQ)
 
