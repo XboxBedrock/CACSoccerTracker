@@ -63,6 +63,6 @@ NP_GYRO = 0.267
 
 
 def filter_gyro(val):
-    if abs(val) < NP_GYRO:
+    if abs(val) > NP_GYRO:
         return val
     return 0

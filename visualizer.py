@@ -5,7 +5,7 @@ xs = []
 ys = []
 zs = []
 
-with open('data.txt', 'r') as f:
+with open('./data.txt', 'r') as f:
     t = 0
     for line in f.readlines():
         nums = list(map(float, line[1:-2].split(', ')))
