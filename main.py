@@ -17,7 +17,7 @@ PRAJWAL = True
 SDA = machine.Pin(0)
 SCL = machine.Pin(1)
 START_STOP_BUTTON = machine.Pin(13)
-CALIB_BUTTON = machine.Pin(14)
+# CALIB_BUTTON = machine.Pin(14)
 STATUS_LED = machine.Pin(15, machine.Pin.OUT)
 STATUS_LED.value(1)  # test
 utime.sleep(1)  # test
@@ -28,7 +28,7 @@ PRAJWAL_MAGNO_OFFSET = (29.04609, 34.06641, -52.03125)
 SUSHRUT_MAGNO_OFFSET = (3.153517, 26.01416, -29.99121)
 PRAJWAL_MAGNO_SCALE = (0.9980365, 1.032012, 0.9717683)
 SUSHRUT_MAGNO_SCALE = (0.9808451, 1.061359, 0.9631287)
-idiot = True  # Prajwal should change to false
+PRAJWAL = True
 
 if PRAJWAL:
     MAGNO_OFFSET = PRAJWAL_MAGNO_OFFSET
@@ -45,71 +45,76 @@ _ = mpu9250.MPU9250(i2c)  # opens bypass to access AK8963
 
 mpu6500 = MPU6500(i2c)
 
-if not idiot:
-    magno = AK8963(i2c, offset=PRAJWAL_MAGNO_OFFSET, scale=PRAJWAL_MAGNO_SCALE)
-if idiot:
-    magno = AK8963(i2c, offset=SUSHRUT_MAGNO_OFFSET, scale=SUSHRUT_MAGNO_SCALE)
+if os.path.exists('./magno_offset.txt'):
+    with open('./magno_offset.txt', 'r') as f:
+        magno = AK8963(i2c, offset=tuple(map(float, f.read().split())), scale=MAGNO_SCALE)
+else:
+    magno = AK8963(i2c)
+
 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
 print(START_STOP_BUTTON.value())  # DEBUG
 while True:
-    # not logging, checking if connected to appn
+    # not logging, checking if connected to app
     while START_STOP_BUTTON.value() != 1:
         # NOTE: inefficient, consider porting to select.poll()
         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             msg = sys.stdin.readline().rstrip('\n')
-            if msg == 'flash':  # DEBUG
+            if msg == 'flash':
                 STATUS_LED.value(1)
                 utime.sleep(0.5)
                 STATUS_LED.value(0)
                 sys.stdout.write("done")
             elif msg == 'calibmag':
-                sys.stdout.write("start")
-                magno.calibrate()
+                with open('magno_offset.txt', 'w') as f:
+                    f.write(str(' '.join(map(str, magno.calibrate()))))
                 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
-                sys.stdout.write("done")
             elif msg == 'issetup':
-                is_setup = "pref.json" in os.listdir()
+                is_setup = 'magno_offset.txt' in os.listdir()
                 sys.stdout.write("true" * int(is_setup) + "false" * int(not is_setup))
             elif msg == 'sendfiles':
                 STATUS_LED.value(1)
                 utime.sleep(0.5)
                 STATUS_LED.value(0)
-                #sys.stdout.write('start')
-                for fname in os.listdir():
-                    if fname.endswith('.bin'):
-                        # try:
-                        #     with open(fname, 'r') as f:
-                        #         data = f.read()
-                        #         if data:
-                        #             sys.stdout.write(fname[:-4])  # session timestamp
-                        #             sys.stdout.write(data)    # session data
-                        # except Exception as err:
-                        #     try:
-                        #         sys.stdout.write(data)
-                        #         sys.stdout.write(fname)
-                        #         sys.stdout.write(err)
-                        #     except NameError:
-                        #         print("'data' was not defined")
+                session_files = []
+                if os.path.exists("./sessions"):
+                    for fname in os.listdir('./sessions'):
+                        # if os.path.getsize() doesn't work, use os.stat().st_size
+                        if os.path.getsize(fname):
+                            session_files.append(fname)
+                    # try:
+                    #     with open(fname, 'r') as f:
+                    #         data = f.read()
+                    #         if data:
+                    #             sys.stdout.write(fname[:-4])  # session timestamp
+                    #             sys.stdout.write(data)    # session data
+                    # except Exception as err:
+                    #     try:
+                    #         sys.stdout.write(data)
+                    #         sys.stdout.write(fname)
+                    #         sys.stdout.write(err)
+                    #     except NameError:
+                    #         print("'data' was not defined")
+                    sys.stdout.write(str(len(session_files))+'\n')
+                    for fname in session_files:
                         with open(fname, 'r') as f:
                             data = f.read()
-                            if data:
-                                sys.stdout.write(fname[:-4])  # session timestamp
-                                sys.stdout.write(len(data))   # number of bytes in data
-                                sys.stdout.write(data)        # session data
-                sys.stdout.write('done')
+                            sys.stdout.write(fname[:-4]+'\n')      # session timestamp
+                            sys.stdout.write(str(len(data))+'\n')  # number of bytes in data
+                            sys.stdout.write(data)                 # session data
 
     STATUS_LED.value(1)
 
-    while CALIB_BUTTON.value() != 1:
+    while START_STOP_BUTTON.value() != 1:
         continue
 
     mpu6500.calibrate()
 
     STATUS_LED.value(0)
 
-    with open(f'{int(utime.time())}.bin', 'wb') as logfile:
+    with open(f'./sessions/{int(utime.time())}.bin', 'wb') as logfile:
         while START_STOP_BUTTON.value() != 1:
+            # 4 bytes per number
             logfile.write(ustruct.pack('f'*9, sensor.acceleration+sensor.gyro+sensor.magnetic))
             utime.sleep(1/SAMPLE_FREQ)
 

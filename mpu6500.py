@@ -29,7 +29,7 @@ __version__ = "0.3.0-dev"
 # pylint: disable=import-error
 import ustruct
 import utime
-from machine import I2C, Pin
+
 from micropython import const
 # pylint: enable=import-error
 
@@ -191,15 +191,15 @@ class MPU6500:
         aoy /= n
         aoz /= n
 
-        if ((self._accel_sf - abs(aox)) < 1):
+        if (self._accel_sf - abs(aox)) < 1:
             sign = (1, -1)[aox < 0]
             aox = (self._accel_sf - abs(aox)) * sign
 
-        if ((self._accel_sf - abs(aoy)) < 1):
+        if (self._accel_sf - abs(aoy)) < 1:
             sign = (1, -1)[aoy < 0]
             aoy = (self._accel_sf - abs(aoy)) * sign
 
-        if ((self._accel_sf - abs(aoz)) < 1):
+        if (self._accel_sf - abs(aoz)) < 1:
             sign = (1, -1)[aoz < 0]
             aoz = (self._accel_sf - abs(aoz)) * sign
 

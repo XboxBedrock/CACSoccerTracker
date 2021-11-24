@@ -2,7 +2,7 @@
     "sync_folder": "",
     "open_on_start": false,
     "safe_boot_on_upload": false,
-    "statusbar_buttons": null,
+    "statusbar_buttons": "yes",
     "py_ignore": [
         "pico-go.json",
         ".vscode/",
