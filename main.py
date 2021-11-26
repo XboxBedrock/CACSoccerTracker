@@ -25,6 +25,11 @@ utime.sleep(1)  # test
 STATUS_LED.value(0)
 # ----------------------------- #
 
+
+def get_size(filename):
+    return os.stat(filename)[6]
+
+
 PRAJWAL_MAGNO_OFFSET = (29.04609, 34.06641, -52.03125)
 SUSHRUT_MAGNO_OFFSET = (3.153517, 26.01416, -29.99121)
 PRAJWAL_MAGNO_SCALE = (0.9980365, 1.032012, 0.9717683)
@@ -94,7 +99,7 @@ while True:
                 except OSError:
                     os.mkdir("./sessions")
                 for fname in os.listdir('./sessions'):
-                    if os.stat(f'./sessions/{fname}')[6]:
+                    if get_size(f'./sessions/{fname}'):
                         session_files.append(fname)
                     # try:
                     #     with open(fname, 'r') as f:
@@ -114,7 +119,7 @@ while True:
                     with open(f'./sessions/{fname}', 'r') as f:
                         data = f.read()
                         sys.stdout.write(fname[:-4]+'\n')      # session timestamp
-                        sys.stdout.write(str(len(data))+'\n')  # number of bytes in data
+                        sys.stdout.write(str(get_size(f'./sessions/{fname}'))+'\n')  # number of bytes in data
                         sys.stdout.write(data)                 # session data
         else:
             # print('no data')
@@ -132,7 +137,8 @@ while True:
     with open(f'./sessions/{utime.time()}.bin', 'wb') as logfile:
         while START_STOP_BUTTON.value() != 1:
             # 4 bytes per number
-            logfile.write(ustruct.pack('f'*9, *(sensor.gyro+sensor.acceleration+(sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))))
+            logfile.write(ustruct.pack('f'*9, *(sensor.gyro+sensor.acceleration
+                                                + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))))
             utime.sleep(1/SAMPLE_FREQ)
 
     # NOTE: Consider changing hang time
