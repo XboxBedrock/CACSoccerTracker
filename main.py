@@ -41,6 +41,9 @@ def to_base64(num):
     for n in lst[::-1]:
         res += alphabet[n]
 
+    while len(res) < 12:
+        res = 'A'+res
+
     return res
 
 
@@ -134,7 +137,7 @@ while True:
                         data = f.read()
                         sys.stdout.write(fname[:-4]+'\n')  # session timestamp
                         sys.stdout.write(data+'\n')  # session data
-                    # os.remove(f'./sessions/{fname}')
+                    os.remove(f'./sessions/{fname}')
 
     STATUS_LED.value(1)
     print('waiting for calib')  # DEBUG
@@ -163,7 +166,7 @@ while True:
         while START_STOP_BUTTON.value() != 1:
             # 4 bytes per number (little-endian) that are converted to base-64
             logfile.write(to_base64(int.from_bytes(ustruct.pack('<'+'f'*9, *(sensor.gyro+sensor.acceleration
-                                                                             + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))), 'little')))
+                                                                             + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))), 'big')))
             utime.sleep(1/SAMPLE_FREQ)
 
     # NOTE: Consider changing hang time
