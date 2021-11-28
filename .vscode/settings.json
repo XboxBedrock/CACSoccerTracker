@@ -2,7 +2,7 @@
     "python.linting.enabled": true,
     "python.jediEnabled": false,
     "python.linting.pylintEnabled": true,
-    "python.linting.mypyEnabled": true,
+    "python.linting.mypyEnabled": false,
     "python.languageServer": "Pylance",
     "python.linting.prospectorEnabled": false,
     "python.linting.flake8Enabled": false,
@@ -10,5 +10,12 @@
     "python.formatting.autopep8Args": [
         "--max-line-length=120",
         "--ignore=E226,E24,W503,E202"
+    ],
+    "python.analysis.typeshedPaths": [
+        ".vscode/Pico-Stub"
+    ],
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.extraPaths": [
+        ".vscode/Pico-Stub/stubs"
     ]
 }

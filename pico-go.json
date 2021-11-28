@@ -5,7 +5,6 @@
         ".gitignore",
         ".git",
         "project.pico-go",
-        "tester.py",
         "visualizer.py",
         "madgwick_ahrs.py",
         "quaternion.py",

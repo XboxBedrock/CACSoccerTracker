@@ -23,6 +23,8 @@ STATUS_LED.value(1)  # test
 utime.sleep(1)  # test
 STATUS_LED.value(0)
 BUTTON_HANG = 0.5
+
+FILE_DEBUGGING = True
 # ----------------------------- #
 
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -70,14 +72,15 @@ mpu6500 = MPU6500(i2c)
 
 try:
     with open('./magno_offset.txt', 'r') as f:
-        magno = AK8963(i2c, offset=tuple(map(float, f.read().split())), scale=MAGNO_SCALE)
+        offset_and_scale = list(map(float, f.read().split()))
+        offset, scale = offset_and_scale[:3], offset_and_scale[3:]
+        magno = AK8963(i2c, offset=offset, scale=scale)
 except OSError:
-    magno = AK8963(i2c)
+    magno = AK8963(i2c, offset=MAGNO_OFFSET, scale=MAGNO_SCALE)
 
 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
 
 
-print(START_STOP_BUTTON.value())  # DEBUG
 while True:
     # not logging, checking if connected to app
     while START_STOP_BUTTON.value() != 1:
@@ -99,11 +102,15 @@ while True:
                 sys.stdout.write("done")
             elif msg == 'calibmag':
                 with open('magno_offset.txt', 'w') as f:
-                    f.write(str(' '.join(map(str, magno.calibrate()))))
+                    calib_data = magno.calibrate()
+                    calib_data = calib_data[0] + calib_data[1]
+                    f.write(' '.join(map(str, calib_data)))
                 sensor = mpu9250.MPU9250(i2c, ak8963=magno, mpu6500=mpu6500)
             elif msg == 'issetup':
-                is_setup = 'magno_offset.txt' in os.listdir()
-                sys.stdout.write("true" * int(is_setup) + "false" * int(not is_setup))
+                if 'magno_offset.txt' in os.listdir():
+                    sys.stdout.write("true")
+                else:
+                    sys.stdout.write("false")
             elif msg == 'sendfiles':
                 STATUS_LED.value(1)
                 utime.sleep(0.5)
@@ -157,17 +164,36 @@ while True:
     except OSError:
         os.mkdir("./sessions")
 
+    if FILE_DEBUGGING:
+        try:
+            os.stat("./test-sessions")
+        except OSError:
+            os.mkdir("./test-sessions")
+
     max_file_num = 0
     for fname in os.listdir('./sessions'):
         if fname.endswith('.txt'):
             max_file_num = max(max_file_num, int(fname[:-4]))
 
-    with open(f'./sessions/{max_file_num+1}.txt', 'w') as logfile:
-        while START_STOP_BUTTON.value() != 1:
-            # 4 bytes per number (little-endian) that are converted to base-64
-            logfile.write(to_base64(int.from_bytes(ustruct.pack('<'+'f'*9, *(sensor.gyro+sensor.acceleration
-                                                                             + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))), 'big')))
-            utime.sleep(1/SAMPLE_FREQ)
+    if FILE_DEBUGGING:
+        with open(f'./sessions/{max_file_num+1}.txt', 'w') as logfile, open(f'./test-sessions/{max_file_num+1}.txt', 'w') as testfile:
+            while START_STOP_BUTTON.value() != 1:
+                # 4 bytes per number (little-endian) that are converted to base-64
+                reading = sensor.gyro + sensor.acceleration + \
+                    (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2])
+                s = ustruct.pack('<' + 'f' * 9, *reading)
+                num = int.from_bytes(s, 'big')
+                num_base64 = to_base64(num)
+                logfile.write(num_base64)
+                testfile.write(f"{repr(reading)} {str(list(s))} {str(num)} {num_base64}\n")
+                utime.sleep(1/SAMPLE_FREQ)
+    else:
+        with open(f'./sessions/{max_file_num+1}.txt', 'w') as logfile:
+            while START_STOP_BUTTON.value() != 1:
+                # 4 bytes per number (little-endian) that are converted to base-64
+                logfile.write(to_base64(int.from_bytes(ustruct.pack('<'+'f'*9, *(sensor.gyro+sensor.acceleration
+                                                                                 + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))), 'big')))
+                utime.sleep(1/SAMPLE_FREQ)
 
     # NOTE: Consider changing hang time
     utime.sleep(BUTTON_HANG)  # so that one button press is not counted as multiple
