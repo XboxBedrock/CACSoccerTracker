@@ -132,11 +132,9 @@ dmypy.json
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
-
-# End of https://www.gitignore.io/api/python,visualstudiocode
-
 .micropy/
 
 pcb/
 pcbschem/
-
+tester.py
+visualizer.py
