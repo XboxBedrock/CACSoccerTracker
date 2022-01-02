@@ -24,7 +24,7 @@ utime.sleep(1)  # test
 STATUS_LED.value(0)
 BUTTON_HANG = 0.5
 
-FILE_DEBUGGING = True
+FILE_DEBUGGING = False
 # ----------------------------- #
 
 alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'

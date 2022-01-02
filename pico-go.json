@@ -6,6 +6,7 @@
         ".git",
         "project.pico-go",
         "visualizer.py",
+        "tester.py",
         "madgwick_ahrs.py",
         "quaternion.py",
         "__pycache__"
