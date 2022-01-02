@@ -10,7 +10,7 @@ from ak8963 import AK8963
 from mpu6500 import MPU6500
 
 # ---------- OPTIONS ---------- #
-SAMPLE_FREQ = 5
+SAMPLE_FREQ = 20
 
 PRAJWAL = True
 
@@ -39,6 +39,7 @@ def to_base64(num):
     while num:
         lst.append(num % 64)
         num = num//64
+
     res = ''
     for n in lst[::-1]:
         res += alphabet[n]
