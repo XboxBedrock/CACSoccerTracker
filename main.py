@@ -192,8 +192,10 @@ while True:
         with open(f'./sessions/{max_file_num+1}.txt', 'w') as logfile:
             while START_STOP_BUTTON.value() != 1:
                 # 4 bytes per number (little-endian) that are converted to base-64
-                logfile.write(to_base64(int.from_bytes(ustruct.pack('<'+'f'*9, *(sensor.gyro+sensor.acceleration
-                                                                                 + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))), 'big')))
+                # logfile.write(to_base64(int.from_bytes(ustruct.pack('<'+'f'*9, *(sensor.gyro+sensor.acceleration
+                #                                                                  + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]))), 'big')))
+                for val in sensor.gyro+sensor.acceleration + (sensor.magnetic[1], sensor.magnetic[0], -sensor.magnetic[2]):
+                    logfile.write(str(val)+' ')
                 utime.sleep(1/SAMPLE_FREQ)
 
     # NOTE: Consider changing hang time
